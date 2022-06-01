@@ -7,11 +7,6 @@ use crate::{ascii::AsciiSheet, GameState};
 
 pub struct TileMapPlugin;
 
-#[derive(Component, Inspectable)]
-pub struct BoundingEntity {
-    pub sprite_box: Entity,
-}
-
 #[derive(Component, Inspectable, Default, Debug)]
 pub struct Dimension {
     pub width: f32,

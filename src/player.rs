@@ -5,6 +5,7 @@ use coord_transforms::prelude::Vector2;
 
 use crate::{
     ascii::{spawn_sprite, AsciiSheet},
+    items::{item_list, ItemType, Pickupable},
     tileMap::{Collisions, Tile, TileType},
     ui::oxygen_level,
     GameState, TILE_SIZE,
@@ -15,6 +16,12 @@ pub struct Player {
     grab_distance: f32,
     oxygen_level: f32,
 }
+
+#[derive(Component, Inspectable)]
+pub struct Inventory {
+    pub item: ItemType,
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -22,6 +29,7 @@ impl Plugin for PlayerPlugin {
         app.add_system_set(
             SystemSet::on_update(GameState::Overworld)
                 .with_system(player_movement.label("movement"))
+                .with_system(player_pickup)
                 .with_system(camera_follow.after("movement"))
                 .with_system(reduce_oxygen),
         )
@@ -126,6 +134,25 @@ fn wall_collision_check(
     true
 }
 
+fn player_pickup(
+    mut commands: Commands,
+    keyboard: Res<Input<KeyCode>>,
+    mut player_query: Query<(&Transform, &Player, &mut Inventory)>,
+    pickup_query: Query<(Entity, &Transform, &Pickupable), Without<Player>>,
+) {
+    let (player_transform, player, mut inventory) = player_query.single_mut();
+    if keyboard.just_pressed(KeyCode::Space) {
+        for (entity, transform, item_pickup) in pickup_query.iter() {
+            if player.grab_distance
+                > Vec3::distance(transform.translation, player_transform.translation)
+            {
+                inventory.item = item_pickup.description;
+                commands.entity(entity).despawn_recursive();
+            }
+        }
+    }
+}
+
 fn spawn_player(mut commands: Commands, ascii: Res<AsciiSheet>) {
     let player = spawn_sprite(
         &mut commands,
@@ -142,7 +169,13 @@ fn spawn_player(mut commands: Commands, ascii: Res<AsciiSheet>) {
         .insert(Name::new("Player"))
         .insert(Player {
             speed: 5.0,
-            grab_distance: 0.1,
+            grab_distance: 0.2,
             oxygen_level: 100.0,
+        })
+        .insert(Inventory {
+            item: ItemType {
+                sprite_index: 0,
+                item: item_list::none,
+            },
         });
 }

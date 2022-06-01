@@ -43,7 +43,7 @@ fn load_asset(
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let image = assets.load("New Piskel (8).png");
+    let image = assets.load("New Piskel (9).png");
     let atlas =
         TextureAtlas::from_grid_with_padding(image, Vec2::splat(30.0), 4, 4, Vec2::splat(4.0));
 

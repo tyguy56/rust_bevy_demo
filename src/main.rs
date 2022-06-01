@@ -23,6 +23,9 @@ use start_menu::MainMenuPlugin;
 mod ui;
 use ui::UIPlugin;
 
+mod items;
+use items::itemsPlugin;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum GameState {
     Overworld,
@@ -50,6 +53,7 @@ fn main() {
         .add_plugin(TileMapPlugin)
         .add_plugin(MainMenuPlugin)
         .add_plugin(UIPlugin)
+        .add_plugin(itemsPlugin)
         .run();
 }
 
